@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"*.rmd": "markdown",
+		"limits": "c",
+		"pthread.h": "c"
+	}
+}
