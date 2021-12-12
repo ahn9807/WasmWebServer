@@ -25,10 +25,23 @@ void server_error(char *msg)
 	exit(1);
 }
 
-int sys_setsockopt(int __fd, int __level, int __optname, const void *__optval, socklen_t __optlen);
-int sys_bind(int __fd, const struct sockaddr *__addr, socklen_t __len);
+void* wasm_addr_to_absolute(u32 wasm_addr) {
+  return &tiny_Z_memory->data[wasm_addr];
+}
+
+void write_u32(u32 wasm_addr, u32 value) {
+  *(u32*)wasm_addr_to_absolute(wasm_addr) = value;
+}
+
+u32 read_u32(u32 wasm_addr) {
+  return *(u32*)wasm_addr_to_absolute(wasm_addr);
+}
+
+int sys_socket(int __domain, int __type, int __protocol);
+int sys_setsockopt(int __fd, int __level, int __optname, int __optval, socklen_t __optlen);
+int sys_bind(int __fd, int sin_port, int sin_addr);
 int sys_listen(int __fd, int __n);
-int sys_accept(int __fd, struct sockaddr *__restrict__ __addr, socklen_t *__restrict__ __addr_len);
+int sys_accept(int __fd);
 int sys_munmap(void *__addr, size_t __len);
 void *sys_mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset);
 int sys_pipe(int *__pipedes);

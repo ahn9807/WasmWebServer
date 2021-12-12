@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	args->portno = argv[1];
 	args->message_fd = server_sd;
 
-	pthread_t *threads = malloc((WORKER_SIZE + 1) * sizeof(pthread_t));
+	pthread_t *threads = sys_malloc((WORKER_SIZE + 1) * sizeof(pthread_t));
 
 	sys_pthread_create(&threads[0], NULL, &server_main, (void *)args);
 
@@ -44,7 +44,4 @@ int main(int argc, char **argv)
 	{
 		sys_pthread_join(threads[i], NULL);
 	}
-
-	server_main((void *)args);
-	server_worker(&worker_sd);
 }

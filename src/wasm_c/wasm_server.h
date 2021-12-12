@@ -31,6 +31,22 @@ typedef double f64;
 
 extern void WASM_RT_ADD_PREFIX(init)(void);
 
+/* import: 'env' 'sys_pipe' */
+extern u32 (*Z_envZ_sys_pipeZ_ii)(u32);
+/* import: 'env' 'sys_server_error' */
+extern void (*Z_envZ_sys_server_errorZ_vi)(u32);
+/* import: 'env' 'sys_exit' */
+extern void (*Z_envZ_sys_exitZ_vi)(u32);
+/* import: 'env' 'sys_printf' */
+extern u32 (*Z_envZ_sys_printfZ_iii)(u32, u32);
+/* import: 'env' 'sys_malloc' */
+extern u32 (*Z_envZ_sys_mallocZ_ii)(u32);
+/* import: 'env' 'sys_pthread_create' */
+extern u32 (*Z_envZ_sys_pthread_createZ_iiiii)(u32, u32, u32, u32);
+/* import: 'env' 'sys_pthread_join' */
+extern u32 (*Z_envZ_sys_pthread_joinZ_iii)(u32, u32);
+/* import: 'env' 'sys_socket' */
+extern u32 (*Z_envZ_sys_socketZ_iiii)(u32, u32, u32);
 /* import: 'env' 'sys_setsockopt' */
 extern u32 (*Z_envZ_sys_setsockoptZ_iiiiii)(u32, u32, u32, u32, u32);
 /* import: 'env' 'sys_bind' */
@@ -38,40 +54,30 @@ extern u32 (*Z_envZ_sys_bindZ_iiii)(u32, u32, u32);
 /* import: 'env' 'sys_listen' */
 extern u32 (*Z_envZ_sys_listenZ_iii)(u32, u32);
 /* import: 'env' 'sys_accept' */
-extern u32 (*Z_envZ_sys_acceptZ_iiii)(u32, u32, u32);
+extern u32 (*Z_envZ_sys_acceptZ_ii)(u32);
 /* import: 'env' 'sys_write' */
 extern u32 (*Z_envZ_sys_writeZ_iiii)(u32, u32, u32);
 /* import: 'env' 'sys_read' */
 extern u32 (*Z_envZ_sys_readZ_iiii)(u32, u32, u32);
 /* import: 'env' 'sys_close' */
 extern u32 (*Z_envZ_sys_closeZ_ii)(u32);
-/* import: 'env' 'sys_exit' */
-extern void (*Z_envZ_sys_exitZ_vi)(u32);
 /* import: 'env' 'sys_stat' */
 extern u32 (*Z_envZ_sys_statZ_iii)(u32, u32);
 /* import: 'env' 'sys_mmap' */
 extern u32 (*Z_envZ_sys_mmapZ_iiiiiij)(u32, u32, u32, u32, u32, u64);
 /* import: 'env' 'sys_munmap' */
 extern u32 (*Z_envZ_sys_munmapZ_iii)(u32, u32);
-/* import: 'wasi_snapshot_preview1' 'fd_close' */
-extern u32 (*Z_wasi_snapshot_preview1Z_fd_closeZ_ii)(u32);
-/* import: 'wasi_snapshot_preview1' 'fd_seek' */
-extern u32 (*Z_wasi_snapshot_preview1Z_fd_seekZ_iijii)(u32, u64, u32, u32);
-/* import: 'wasi_snapshot_preview1' 'fd_write' */
-extern u32 (*Z_wasi_snapshot_preview1Z_fd_writeZ_iiiii)(u32, u32, u32, u32);
-/* import: 'wasi_snapshot_preview1' 'proc_exit' */
-extern void (*Z_wasi_snapshot_preview1Z_proc_exitZ_vi)(u32);
-/* import: 'env' '__syscall_socket' */
-extern u32 (*Z_envZ___syscall_socketZ_iiiiiii)(u32, u32, u32, u32, u32, u32);
 
 /* export: 'memory' */
 extern wasm_rt_memory_t (*WASM_RT_ADD_PREFIX(Z_memory));
+/* export: 'start_main' */
+extern void (*WASM_RT_ADD_PREFIX(Z_start_mainZ_vv))(void);
+/* export: 'malloc' */
+extern u32 (*WASM_RT_ADD_PREFIX(Z_mallocZ_ii))(u32);
 /* export: 'server_main' */
 extern u32 (*WASM_RT_ADD_PREFIX(Z_server_mainZ_ii))(u32);
 /* export: 'server_worker' */
 extern u32 (*WASM_RT_ADD_PREFIX(Z_server_workerZ_ii))(u32);
-/* export: 'malloc' */
-extern u32 (*WASM_RT_ADD_PREFIX(Z_mallocZ_ii))(u32);
 /* export: '__indirect_function_table' */
 extern wasm_rt_table_t (*WASM_RT_ADD_PREFIX(Z___indirect_function_table));
 /* export: '_initialize' */
