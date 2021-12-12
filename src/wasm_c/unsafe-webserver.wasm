@@ -1,0 +1,559 @@
+	.text
+	.file	"webserver.c"
+	.section	.text.server_error,"",@
+	.globl	server_error                    # -- Begin function server_error
+	.globaltype	__stack_pointer, i32
+	.functype	perror (i32) -> ()
+	.functype	exit (i32) -> ()
+	.functype	socket (i32, i32, i32) -> (i32)
+	.functype	atoi (i32) -> (i32)
+	.functype	sys_setsockopt (i32, i32, i32, i32, i32) -> (i32)
+	.functype	htonl (i32) -> (i32)
+	.functype	htons (i32) -> (i32)
+	.functype	sys_bind (i32, i32, i32) -> (i32)
+	.functype	sys_listen (i32, i32) -> (i32)
+	.functype	sys_accept (i32, i32, i32) -> (i32)
+	.functype	sys_write (i32, i32, i32) -> (i32)
+	.functype	malloc (i32) -> (i32)
+	.functype	sys_read (i32, i32, i32) -> (i32)
+	.functype	sys_close (i32) -> (i32)
+	.functype	sys_exit (i32) -> ()
+	.functype	sscanf (i32, i32, i32) -> (i32)
+	.functype	strcasecmp (i32, i32) -> (i32)
+	.functype	strstr (i32, i32) -> (i32)
+	.functype	strcat (i32, i32) -> (i32)
+	.functype	strlen (i32) -> (i32)
+	.functype	sys_stat (i32, i32) -> (i32)
+	.functype	open (i32, i32, i32) -> (i32)
+	.functype	sys_mmap (i32, i32, i32, i32, i32, i64) -> (i32)
+	.functype	sys_munmap (i32, i32) -> (i32)
+	.functype	puts (i32) -> (i32)
+	.functype	getTempRet0 () -> (i32)
+	.import_module	getTempRet0, env
+	.import_name	getTempRet0, getTempRet0
+	.functype	setTempRet0 (i32) -> ()
+	.import_module	setTempRet0, env
+	.import_name	setTempRet0, setTempRet0
+	.type	server_error,@function
+server_error:                           # @server_error
+	.functype	server_error (i32) -> ()
+# %bb.0:
+	local.get	0
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+	end_function
+.Lfunc_end0:
+	.size	server_error, .Lfunc_end0-server_error
+                                        # -- End function
+	.section	.text.server_main,"",@
+	.globl	server_main                     # -- Begin function server_main
+	.type	server_main,@function
+server_main:                            # @server_main
+	.functype	server_main (i32) -> (i32)
+	.local  	i32, i32, i32
+# %bb.0:
+	global.get	__stack_pointer
+	i32.const	48
+	i32.sub 
+	local.tee	1
+	global.set	__stack_pointer
+	local.get	1
+	i32.const	16
+	i32.store	12
+	i32.const	2
+	i32.const	1
+	i32.const	0
+	call	socket
+	local.set	2
+	local.get	1
+	i32.const	1
+	i32.store	8
+	block   	
+	block   	
+	block   	
+	block   	
+	local.get	2
+	i32.const	-1
+	i32.le_s
+	br_if   	0                               # 0: down to label3
+# %bb.1:
+	local.get	0
+	i32.load	4
+	call	atoi
+	local.set	3
+	local.get	2
+	i32.const	1
+	i32.const	2
+	local.get	1
+	i32.const	8
+	i32.add 
+	i32.const	4
+	call	sys_setsockopt
+	drop
+	local.get	1
+	i32.const	2
+	i32.store16	32
+	local.get	1
+	i64.const	0
+	i64.store	40
+	local.get	1
+	i32.const	0
+	call	htonl
+	i32.store	36
+	local.get	1
+	local.get	3
+	i32.const	65535
+	i32.and 
+	call	htons
+	i32.store16	34
+	local.get	2
+	local.get	1
+	i32.const	32
+	i32.add 
+	i32.const	16
+	call	sys_bind
+	i32.const	-1
+	i32.le_s
+	br_if   	1                               # 1: down to label2
+# %bb.2:
+	local.get	2
+	i32.const	5
+	call	sys_listen
+	i32.const	0
+	i32.lt_s
+	br_if   	3                               # 3: down to label0
+# %bb.3:
+	local.get	1
+	local.get	2
+	local.get	1
+	i32.const	16
+	i32.add 
+	local.get	1
+	i32.const	12
+	i32.add 
+	call	sys_accept
+	local.tee	3
+	i32.store	4
+	block   	
+	local.get	3
+	i32.const	0
+	i32.lt_s
+	br_if   	0                               # 0: down to label4
+# %bb.4:
+.LBB1_5:                                # =>This Inner Loop Header: Depth=1
+	loop    	                                # label5:
+	local.get	0
+	i32.load	0
+	local.get	1
+	i32.const	4
+	i32.add 
+	i32.const	4
+	call	sys_write
+	i32.const	-1
+	i32.le_s
+	br_if   	4                               # 4: down to label1
+# %bb.6:                                #   in Loop: Header=BB1_5 Depth=1
+	local.get	1
+	local.get	2
+	local.get	1
+	i32.const	16
+	i32.add 
+	local.get	1
+	i32.const	12
+	i32.add 
+	call	sys_accept
+	local.tee	3
+	i32.store	4
+	local.get	3
+	i32.const	0
+	i32.ge_s
+	br_if   	0                               # 0: up to label5
+.LBB1_7:
+	end_loop
+	end_block                               # label4:
+	i32.const	.L.str.3
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+.LBB1_8:
+	end_block                               # label3:
+	i32.const	.L.str
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+.LBB1_9:
+	end_block                               # label2:
+	i32.const	.L.str.1
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+.LBB1_10:
+	end_block                               # label1:
+	i32.const	.L.str.4
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+.LBB1_11:
+	end_block                               # label0:
+	i32.const	.L.str.2
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+	end_function
+.Lfunc_end1:
+	.size	server_main, .Lfunc_end1-server_main
+                                        # -- End function
+	.section	.text.server_worker,"",@
+	.globl	server_worker                   # -- Begin function server_worker
+	.type	server_worker,@function
+server_worker:                          # @server_worker
+	.functype	server_worker (i32) -> (i32)
+	.local  	i32, i32, i32, i32, i32, i32, i32
+# %bb.0:
+	global.get	__stack_pointer
+	i32.const	112
+	i32.sub 
+	local.tee	1
+	global.set	__stack_pointer
+	local.get	0
+	i32.load	0
+	local.set	2
+	i32.const	0
+	local.set	3
+.LBB2_1:                                # =>This Inner Loop Header: Depth=1
+	loop    	                                # label6:
+	i32.const	1024
+	call	malloc
+	local.set	0
+	i32.const	1024
+	call	malloc
+	local.set	4
+	i32.const	1024
+	call	malloc
+	local.set	5
+	i32.const	1024
+	call	malloc
+	local.set	6
+	i32.const	1024
+	call	malloc
+	local.set	7
+	local.get	1
+	i32.const	0
+	i32.store	108
+	block   	
+	block   	
+	block   	
+	local.get	2
+	local.get	1
+	i32.const	108
+	i32.add 
+	i32.const	4
+	call	sys_read
+	i32.const	4
+	i32.eq  
+	br_if   	0                               # 0: down to label9
+# %bb.2:                                #   in Loop: Header=BB2_1 Depth=1
+	i32.const	.L.str.5
+	call	perror
+	br      	1                               # 1: down to label8
+.LBB2_3:                                #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label9:
+	local.get	1
+	i32.load	108
+	i32.const	0
+	i32.gt_s
+	br_if   	1                               # 1: down to label7
+# %bb.4:                                #   in Loop: Header=BB2_1 Depth=1
+	i32.const	.Lstr
+	call	puts
+	drop
+.LBB2_5:                                #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label8:
+	local.get	2
+	call	sys_close
+	drop
+	i32.const	-1
+	call	sys_exit
+.LBB2_6:                                #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label7:
+	local.get	1
+	i32.load	108
+	local.get	0
+	i32.const	1024
+	call	sys_read
+	drop
+	local.get	1
+	local.get	6
+	i32.store	8
+	local.get	1
+	local.get	5
+	i32.store	4
+	local.get	1
+	local.get	4
+	i32.store	0
+	local.get	0
+	i32.const	.L.str.7
+	local.get	1
+	call	sscanf
+	drop
+	block   	
+	local.get	4
+	i32.const	.L.str.8
+	call	strcasecmp
+	i32.eqz
+	br_if   	0                               # 0: down to label10
+# %bb.7:                                #   in Loop: Header=BB2_1 Depth=1
+	local.get	1
+	i32.load	108
+	i32.const	.L.str.9
+	i32.const	29
+	call	sys_write
+	drop
+	local.get	1
+	i32.load	108
+	call	sys_close
+	drop
+	br      	1                               # 1: up to label6
+.LBB2_8:                                #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label10:
+	block   	
+	block   	
+	block   	
+	block   	
+	local.get	5
+	i32.const	.L.str.10
+	call	strstr
+	br_if   	0                               # 0: down to label14
+# %bb.9:                                #   in Loop: Header=BB2_1 Depth=1
+	local.get	7
+	i32.const	46
+	i32.store16	0
+	local.get	7
+	local.get	5
+	call	strcat
+	local.set	0
+	block   	
+	local.get	5
+	call	strlen
+	local.get	5
+	i32.add 
+	i32.const	-1
+	i32.add 
+	i32.load8_u	0
+	i32.const	47
+	i32.ne  
+	br_if   	0                               # 0: down to label15
+# %bb.10:                               #   in Loop: Header=BB2_1 Depth=1
+	local.get	0
+	local.get	0
+	call	strlen
+	i32.add 
+	local.tee	4
+	i32.const	0
+	i64.load	.L.str.12:p2align=0
+	i64.store	0:p2align=0
+	local.get	4
+	i32.const	7
+	i32.add 
+	i32.const	0
+	i32.load	.L.str.12+7:p2align=0
+	i32.store	0:p2align=0
+.LBB2_11:                               #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label15:
+	i32.const	1
+	local.set	3
+	local.get	0
+	local.get	1
+	i32.const	16
+	i32.add 
+	call	sys_stat
+	i32.const	-1
+	i32.gt_s
+	br_if   	1                               # 1: down to label13
+# %bb.12:                               #   in Loop: Header=BB2_1 Depth=1
+	local.get	1
+	i32.load	108
+	i32.const	.L.str.13
+	i32.const	23
+	call	sys_write
+	drop
+	i32.const	1
+	local.set	3
+	br      	2                               # 2: down to label12
+.LBB2_13:                               #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label14:
+	local.get	3
+	i32.eqz
+	br_if   	2                               # 2: down to label11
+.LBB2_14:                               #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label13:
+	local.get	1
+	i32.load	108
+	i32.const	.L.str.21
+	i32.const	20
+	call	sys_write
+	drop
+	local.get	7
+	i32.const	0
+	i32.const	0
+	call	open
+	local.set	0
+	i32.const	0
+	local.get	1
+	i32.load	56
+	i32.const	1
+	i32.const	2
+	local.get	0
+	i64.const	0
+	call	sys_mmap
+	local.set	0
+	local.get	1
+	i32.load	108
+	local.get	0
+	local.get	1
+	i32.load	56
+	call	sys_write
+	drop
+	local.get	0
+	local.get	1
+	i32.load	56
+	call	sys_munmap
+	drop
+.LBB2_15:                               #   in Loop: Header=BB2_1 Depth=1
+	end_block                               # label12:
+	local.get	1
+	i32.load	108
+	call	sys_close
+	drop
+	br      	1                               # 1: up to label6
+.LBB2_16:
+	end_block                               # label11:
+	end_loop
+	local.get	1
+	i32.load	108
+	i32.const	.L.str.9
+	i32.const	29
+	call	sys_write
+	drop
+	i32.const	.L.str.22
+	call	perror
+	i32.const	1
+	call	exit
+	unreachable
+	end_function
+.Lfunc_end2:
+	.size	server_worker, .Lfunc_end2-server_worker
+                                        # -- End function
+	.type	.L.str,@object                  # @.str
+	.section	.rodata..L.str,"S",@
+.L.str:
+	.asciz	"ERROR opening socket"
+	.size	.L.str, 21
+
+	.type	.L.str.1,@object                # @.str.1
+	.section	.rodata..L.str.1,"S",@
+.L.str.1:
+	.asciz	"ERROR on sys_binding"
+	.size	.L.str.1, 21
+
+	.type	.L.str.2,@object                # @.str.2
+	.section	.rodata..L.str.2,"S",@
+.L.str.2:
+	.asciz	"ERROR on listen"
+	.size	.L.str.2, 16
+
+	.type	.L.str.3,@object                # @.str.3
+	.section	.rodata..L.str.3,"S",@
+.L.str.3:
+	.asciz	"ERROR on accept"
+	.size	.L.str.3, 16
+
+	.type	.L.str.4,@object                # @.str.4
+	.section	.rodata..L.str.4,"S",@
+.L.str.4:
+	.asciz	"send failed"
+	.size	.L.str.4, 12
+
+	.type	.L.str.5,@object                # @.str.5
+	.section	.rodata..L.str.5,"S",@
+.L.str.5:
+	.asciz	"recvmsg() failed"
+	.size	.L.str.5, 17
+
+	.type	.L.str.7,@object                # @.str.7
+	.section	.rodata..L.str.7,"S",@
+.L.str.7:
+	.asciz	"%s %s %s\n"
+	.size	.L.str.7, 10
+
+	.type	.L.str.8,@object                # @.str.8
+	.section	.rodata..L.str.8,"S",@
+.L.str.8:
+	.asciz	"GET"
+	.size	.L.str.8, 4
+
+	.type	.L.str.9,@object                # @.str.9
+	.section	.rodata..L.str.9,"S",@
+.L.str.9:
+	.asciz	"HTTP/1.1 501 Not Implemented"
+	.size	.L.str.9, 29
+
+	.type	.L.str.10,@object               # @.str.10
+	.section	.rodata..L.str.10,"S",@
+.L.str.10:
+	.asciz	"cgi-bin"
+	.size	.L.str.10, 8
+
+	.type	.L.str.12,@object               # @.str.12
+	.section	.rodata..L.str.12,"S",@
+.L.str.12:
+	.asciz	"index.html"
+	.size	.L.str.12, 11
+
+	.type	.L.str.13,@object               # @.str.13
+	.section	.rodata..L.str.13,"S",@
+.L.str.13:
+	.asciz	"HTTP/1.1 404 Not Found"
+	.size	.L.str.13, 23
+
+	.type	.L.str.21,@object               # @.str.21
+	.section	.rodata..L.str.21,"S",@
+.L.str.21:
+	.asciz	"HTTP/1.1 200 OK\r\n\r\n"
+	.size	.L.str.21, 20
+
+	.type	.L.str.22,@object               # @.str.22
+	.section	.rodata..L.str.22,"S",@
+.L.str.22:
+	.asciz	"dynamic web page is not supported"
+	.size	.L.str.22, 34
+
+	.type	.Lstr,@object                   # @str
+	.section	.rodata..Lstr,"S",@
+.Lstr:
+	.asciz	"Descriptor was not received"
+	.size	.Lstr, 28
+
+	.no_dead_strip	server_main
+	.no_dead_strip	server_worker
+	.ident	"clang version 14.0.0 (https://github.com/llvm/llvm-project 4348cd42c385e71b63e5da7e492172cff6a79d7b)"
+	.no_dead_strip	__indirect_function_table
+	.size	__THREW__, 4
+	.size	__threwValue, 4
+	.section	.custom_section.producers,"",@
+	.int8	1
+	.int8	12
+	.ascii	"processed-by"
+	.int8	1
+	.int8	5
+	.ascii	"clang"
+	.int8	86
+	.ascii	"14.0.0 (https://github.com/llvm/llvm-project 4348cd42c385e71b63e5da7e492172cff6a79d7b)"
+	.section	.rodata..Lstr,"S",@

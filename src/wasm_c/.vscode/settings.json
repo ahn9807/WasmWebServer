@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"*.rmd": "markdown",
+		"wasm_import.h": "c",
+		"webserver.h": "c",
+		"wasm_server.h": "c"
+	}
+}
