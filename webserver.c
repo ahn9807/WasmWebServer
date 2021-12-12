@@ -58,24 +58,6 @@ void *server_main(void *args_in)
 		if (childfd < 0)
 			server_error("ERROR on accept");
 
-		// memset(&parent_msg, 0, sizeof(parent_msg));
-		// struct cmsghdr *cmsg;
-		// char cmsgbuf[CMSG_SPACE(sizeof(childfd))];
-		// parent_msg.msg_control = cmsgbuf;
-		// parent_msg.msg_controllen = sizeof(cmsgbuf); // necessary for CMSG_FIRSTHDR to return the correct value
-		// cmsg = CMSG_FIRSTHDR(&parent_msg);
-		// cmsg->cmsg_level = SOL_SOCKET;
-		// cmsg->cmsg_type = SCM_RIGHTS;
-		// cmsg->cmsg_len = CMSG_LEN(sizeof(childfd));
-		// memcpy(CMSG_DATA(cmsg), &childfd, sizeof(childfd));
-		// parent_msg.msg_controllen = cmsg->cmsg_len; // total size of all control blocks
-		// printf("server send id %d %d\n", args->message_fd, childfd);
-		// if ((sendmsg(args->message_fd, &parent_msg, 0)) < 0)
-		// {
-		// 	server_error("send failed");
-		// 	exit(EXIT_FAILURE);
-		// }
-
 		if (write(args->message_fd, &childfd, sizeof(childfd)) < 0)
 		{
 			server_error("send failed");
@@ -109,32 +91,6 @@ void *server_worker(void *message_fd_in)
 
 	while (1)
 	{
-		// memset(&child_msg, 0, sizeof(child_msg));
-		// char cmsgbuf[CMSG_SPACE(sizeof(int))];
-		// child_msg.msg_control = cmsgbuf; // make place for the ancillary message to be received
-		// child_msg.msg_controllen = sizeof(cmsgbuf);
-
-		// childfd = -1;
-		// printf("recv msg: %d\n", message_fd);
-		// rc = recvmsg(message_fd, &child_msg, 0);
-		// struct cmsghdr *cmsg = CMSG_FIRSTHDR(&child_msg);
-		// if (cmsg == NULL || cmsg->cmsg_type != SCM_RIGHTS)
-		// {
-		// 	server_error("The first control structure contains no file descriptor.\n");
-		// }
-		// memcpy(&childfd, CMSG_DATA(cmsg), sizeof(childfd));
-		// if (rc < 0)
-		// {
-		// 	perror("recvmsg() failed");
-		// 	close(message_fd);
-		// 	exit(-1);
-		// }
-		// else if (childfd <= 0)
-		// {
-		// 	printf("Descriptor was not received\n");
-		// 	close(message_fd);
-		// 	exit(-1);
-		// }
 		memset(&childfd, 0, sizeof(childfd));
 		rc = read(message_fd, &childfd, sizeof(childfd));
 		if (rc != sizeof(childfd))
@@ -150,16 +106,8 @@ void *server_worker(void *message_fd_in)
 			exit(-1);
 		}
 
-		/* open the child socket descriptor as a stream */
-		if ((stream = fdopen(childfd, "r+")) == NULL) {
-			printf("server_error fd %d errno %d\n", childfd, errno);
-			close(childfd);
-			continue;
-			server_error("ERROR on fdopen");
-		}
-
 		/* get the HTTP request line */
-		fgets(buf, BUFSIZE, stream);
+		read(childfd, buf, BUFSIZE);
 		sscanf(buf, "%s %s %s\n", method, uri, version);
 
 		/* tiny only supports the GET method */
@@ -173,11 +121,11 @@ void *server_worker(void *message_fd_in)
 		}
 
 		/* read (and ignore) the HTTP headers */
-		fgets(buf, BUFSIZE, stream);
-		while (strcmp(buf, "\r\n"))
-		{
-			fgets(buf, BUFSIZE, stream);
-		}
+		// fgets(buf, BUFSIZE, stream);
+		// while (strcmp(buf, "\r\n"))
+		// {
+		// 	fgets(buf, BUFSIZE, stream);
+		// }
 
 		/* parse the uri [crufty] */
 		if (!strstr(uri, "cgi-bin"))
@@ -191,9 +139,9 @@ void *server_worker(void *message_fd_in)
 
 			if (stat(filename, &sbuf) < 0)
 			{
-				cerror(stream, filename, "404", "Not found",
-					   "Tiny couldn't find this file");
-				fclose(stream);
+				// cerror(stream, filename, "404", "Not found",
+					//    "Tiny couldn't find this file");
+				// fclose(stream);
 				close(childfd);
 				continue;
 			}
@@ -212,17 +160,18 @@ void *server_worker(void *message_fd_in)
 				strcpy(filetype, "text/plain");
 
 			/* print response header */
-			fprintf(stream, "HTTP/1.1 200 OK\n");
-			fprintf(stream, "Server: Tiny Web Server\n");
-			fprintf(stream, "Content-length: %d\n", (int)sbuf.st_size);
-			fprintf(stream, "Content-type: %s\n", filetype);
-			fprintf(stream, "\r\n");
-			fflush(stream);
+			write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n"));
+			// fprintf(stream, "HTTP/1.1 200 OK\n");
+			// fprintf(stream, "Server: Tiny Web Server\n");
+			// fprintf(stream, "Content-length: %d\n", (int)sbuf.st_size);
+			// fprintf(stream, "Content-type: %s\n", filetype);
+			// fprintf(stream, "\r\n");
+			// fflush(stream);
 
 			/* Use mmap to return arbitrary-sized response body */
 			fd = open(filename, O_RDONLY);
 			p = mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-			write(fileno(stream), p, sbuf.st_size);
+			write(childfd, p, sbuf.st_size);
 			munmap(p, sbuf.st_size);
 		}
 		else
@@ -232,7 +181,7 @@ void *server_worker(void *message_fd_in)
 		}
 
 		/* clean up */
-		fclose(stream);
+		// fclose(stream);
 		close(childfd);
 	}
 }
