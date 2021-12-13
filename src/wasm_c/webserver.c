@@ -84,8 +84,7 @@ void *server_main(void *args_in)
 		if (childfd < 0)
 			sys_server_error("ERROR on accept");
 
-		if (sys_write(args->message_fd, &childfd, sizeof(childfd)) < 0)
-		{
+		if (sys_write_pipe(args->message_fd, childfd) != sizeof(int)) {
 			sys_server_error("send failed");
 		}
 	}
@@ -95,11 +94,11 @@ __attribute__((used))
 void *server_worker(void *message_fd_in)
 {
 	FILE *stream; /* stream version of childfd */
-	int *childfd;
+	int childfd;
 	int is_static = 0;
-	struct stat sbuf; /* file status */
+	int filesize = 0;
 	int fd;			  /* static content filedes */
-	char *p;		  /* temporary pointer */
+	uint64_t p;		  /* temporary pointer */
 	int message_fd = *(int *)message_fd_in;
 
 	/* variables for connection I/O */
@@ -121,33 +120,23 @@ void *server_worker(void *message_fd_in)
 		filename = malloc(sizeof(char) * BUFSIZE);
 		filetype = malloc(sizeof(char) * BUFSIZE);
 
-		childfd = malloc(sizeof(int));
+		childfd = sys_read_pipe(message_fd);
+		if(childfd == -1) {
+			sys_server_error("ak...");
+			sys_exit(-1);
+		}
 
-		memset(&childfd, 0, sizeof(int));
-		rc = (int)sys_read(message_fd, childfd, sizeof(int));
-		if (rc != 4)
-		{
-			sys_server_error("recvmsg() failed");
-			sys_close(message_fd);
-			sys_exit(-1);
-		}
-		else if (*childfd <= 0)
-		{
-			sys_server_error("Descriptor was not received\n");
-			sys_close(message_fd);
-			sys_exit(-1);
-		}
 
 		/* get the HTTP request line */
-		sys_read(*childfd, buf, BUFSIZE);
+		sys_read(childfd, buf, BUFSIZE);
 		sscanf(buf, "%s %s %s\n", method, uri, version);
 
 		/* tiny only supports the GET method */
 		if (strcasecmp(method, "GET"))
 		{
-			sys_write(*childfd, "HTTP/1.1 501 Not Implemented", sizeof("HTTP/1.1 501 Not Implemented"));
-			sys_close(*childfd);
-			continue;
+			sys_write(childfd, "HTTP/1.1 501 Not Implemented", sizeof("HTTP/1.1 501 Not Implemented"));
+			sys_close(childfd);
+			sys_exit(-1);
 		}
 
 		if (!strstr(uri, "cgi-bin"))
@@ -158,11 +147,13 @@ void *server_worker(void *message_fd_in)
 			if (uri[strlen(uri) - 1] == '/')
 				strcat(filename, "index.html");
 
-			if (sys_stat(filename, &sbuf) < 0)
+			filesize = sys_filesize(filename);
+
+			if (filesize < 0)
 			{
-				sys_write(*childfd, "HTTP/1.1 404 Not Found", sizeof("HTTP/1.1 404 Not Found"));
-				sys_close(*childfd);
-				continue;
+				sys_write(childfd, "HTTP/1.1 404 Not Found", sizeof("HTTP/1.1 404 Not Found"));
+				sys_close(childfd);
+				sys_exit(-1);
 			}
 		}
 
@@ -179,22 +170,28 @@ void *server_worker(void *message_fd_in)
 				strcpy(filetype, "text/plain");
 
 			/* print response header */
-			sys_write(*childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n"));
+			sys_write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n") - 1);
 
 			/* Use mmap to return arbitrary-sized response body */
-			fd = open(filename, O_RDONLY);
-			p = sys_mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-			sys_write(*childfd, p, sbuf.st_size);
-			sys_munmap(p, sbuf.st_size);
+			// fd = sys_open(filename, O_RDONLY);
+			// p = sys_mmap(0, filesize, PROT_READ, MAP_PRIVATE, fd, 0);
+			sys_write_fd(childfd, filename, filesize);
+			// sys_munmap(p, filesize);
 		}
 		else
 		{
-			sys_write(*childfd, "HTTP/1.1 501 Not Implemented", sizeof("HTTP/1.1 501 Not Implemented"));
+			sys_write(childfd, "HTTP/1.1 501 Not Implemented", sizeof("HTTP/1.1 501 Not Implemented"));
 			sys_server_error("dynamic web page is not supported");
 			sys_exit(-1);
 		}
 
 		/* clean up */
-		sys_close(*childfd);
+		free(buf);
+		free(method);
+		free(uri);
+		free(version);
+		free(filename);
+		free(filetype);
+		sys_close(childfd);
 	}
 }

@@ -137,7 +137,7 @@ void *server_worker(void *message_fd_in)
 				strcpy(filetype, "text/plain");
 
 			/* print response header */
-			write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n"));
+			write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n")-1);
 
 			/* Use mmap to return arbitrary-sized response body */
 			fd = open(filename, O_RDONLY);
@@ -151,6 +151,13 @@ void *server_worker(void *message_fd_in)
 			server_error("dynamic web page is not supported");
 			exit(-1);
 		}
+
+		free(buf);
+		free(method);
+		free(uri);
+		free(version);
+		free(filename);
+		free(filetype);
 
 		/* clean up */
 		close(childfd);

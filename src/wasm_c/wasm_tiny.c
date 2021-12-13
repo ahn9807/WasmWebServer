@@ -6,10 +6,11 @@
 #include "wasm_server.h"
 #include "wasm_import.c"
 
-#define WORKER_SIZE 8
+#define WORKER_SIZE 1
 
 extern u32 (*tiny_Z_mallocZ_ii)(u32);
 
+u32 (*Z_envZ_sys_filesizeZ_ii)(u32);
 /* import: 'env' 'sys_socket' */
 u32 (*Z_envZ_sys_socketZ_iiii)(u32, u32, u32);
 /* import: 'env' 'sys_setsockopt' */
@@ -22,10 +23,11 @@ u32 (*Z_envZ_sys_bindZ_iiii)(u32, u32, u32);
 u32 (*Z_envZ_sys_listenZ_iii)(u32, u32);
 /* import: 'env' 'sys_accept' */
 u32 (*Z_envZ_sys_acceptZ_ii)(u32);
+u32 (*Z_envZ_sys_openZ_iii)(u32, u32);
 /* import: 'env' 'sys_write' */
-u32 (*Z_envZ_sys_writeZ_iiii)(u32, u32, u32);
+u32 (*Z_envZ_sys_writeZ_iiji)(u32, u64, u32);
 /* import: 'env' 'sys_read' */
-u32 (*Z_envZ_sys_readZ_iiii)(u32, u32, u32);
+u32 (*Z_envZ_sys_readZ_iiji)(u32, u64, u32);
 /* import: 'env' 'sys_close' */
 u32 (*Z_envZ_sys_closeZ_ii)(u32);
 /* import: 'env' 'sys_exit' */
@@ -33,9 +35,9 @@ void (*Z_envZ_sys_exitZ_vi)(u32);
 /* import: 'env' 'sys_stat' */
 u32 (*Z_envZ_sys_statZ_iii)(u32, u32);
 /* import: 'env' 'sys_mmap' */
-u32 (*Z_envZ_sys_mmapZ_iiiiiij)(u32, u32, u32, u32, u32, u64);
+u64 (*Z_envZ_sys_mmapZ_jjiiiij)(u64, u32, u32, u32, u32, u64);
 /* import: 'env' 'sys_munmap' */
-u32 (*Z_envZ_sys_munmapZ_iii)(u32, u32);
+u32 (*Z_envZ_sys_munmapZ_iji)(u64, u32);
 /* import: 'env' 'sys_malloc' */
 u32 (*Z_envZ_sys_mallocZ_ii)(u32);
 /* import: 'env' 'sys_printf' */
@@ -62,7 +64,9 @@ u32 (*Z_wasi_snapshot_preview1Z_args_getZ_iii)(u32, u32);
 u32 (*Z_envZ___syscall_socketZ_iiiiiii)(u32, u32, u32, u32, u32, u32);
 /* import: 'env' 'sys_server_error' */
 void (*Z_envZ_sys_server_errorZ_vi)(u32);
-
+u32 (*Z_envZ_sys_write_fdZ_iiii)(u32, u32, u32);
+u32 (*Z_envZ_sys_read_pipeZ_ii)(u32);
+u32 (*Z_envZ_sys_write_pipeZ_iii)(u32, u32);
 
 int main(int argc, char **argv)
 {
@@ -76,16 +80,21 @@ int main(int argc, char **argv)
 	Z_envZ_sys_exitZ_vi = &sys_exit;
 	Z_envZ_sys_listenZ_iii = &sys_listen;
 	Z_envZ_sys_mallocZ_ii = &sys_malloc;
-	Z_envZ_sys_mmapZ_iiiiiij = &sys_mmap;
-	Z_envZ_sys_munmapZ_iii = &sys_munmap;
+	Z_envZ_sys_mmapZ_jjiiiij = &sys_mmap;
+	Z_envZ_sys_munmapZ_iji = &sys_munmap;
 	Z_envZ_sys_pipeZ_ii = &sys_pipe;
 	Z_envZ_sys_printfZ_iii = &sys_printf;
 	Z_envZ_sys_pthread_createZ_iiiii = &sys_pthread_create;
 	Z_envZ_sys_pthread_joinZ_iii = &sys_pthread_join;
-	Z_envZ_sys_readZ_iiii = &sys_read;
+	Z_envZ_sys_openZ_iii = &sys_open;
+	Z_envZ_sys_readZ_iiji = &sys_read;
 	Z_envZ_sys_statZ_iii = &sys_stat;
-	Z_envZ_sys_writeZ_iiii = &sys_write;
+	Z_envZ_sys_filesizeZ_ii = &sys_filesize;
+	Z_envZ_sys_writeZ_iiji = &sys_write;
+	Z_envZ_sys_write_fdZ_iiii = &sys_write_fd;
 	Z_envZ_sys_server_errorZ_vi = &sys_server_error;
+	Z_envZ_sys_read_pipeZ_ii = &sys_read_pipe;
+	Z_envZ_sys_write_pipeZ_iii = &sys_write_pipe;
 	Z_wasi_snapshot_preview1Z_args_getZ_iii = &undefined;
 	Z_wasi_snapshot_preview1Z_args_sizes_getZ_iii = &undefined;
 	Z_wasi_snapshot_preview1Z_fd_closeZ_ii = &undefined;

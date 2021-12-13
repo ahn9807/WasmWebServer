@@ -33,17 +33,17 @@ int main(int argc, char **argv)
 
 	pthread_t *threads = malloc((WORKER_SIZE + 1) * sizeof(pthread_t));
 
-	// pthread_create(&threads[0], NULL, &server_main, (void *)args);
+	pthread_create(&threads[0], NULL, &server_main, (void *)args);
 
 	for (int i = 0; i < WORKER_SIZE; i++)
 	{
 		pthread_create(&threads[i + 1], NULL, &server_worker, &worker_sd);
 	}
 
-	// for (int i = 0; i < WORKER_SIZE + 1; i++)
-	// {
-	// 	pthread_join(threads[i], NULL);
-	// }
+	for (int i = 0; i < WORKER_SIZE + 1; i++)
+	{
+		pthread_join(threads[i], NULL);
+	}
 
-	server_main((void *)args);
+// 	server_main((void *)args);
 }

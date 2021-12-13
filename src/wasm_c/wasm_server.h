@@ -55,18 +55,20 @@ extern u32 (*Z_envZ_sys_bindZ_iiii)(u32, u32, u32);
 extern u32 (*Z_envZ_sys_listenZ_iii)(u32, u32);
 /* import: 'env' 'sys_accept' */
 extern u32 (*Z_envZ_sys_acceptZ_ii)(u32);
-/* import: 'env' 'sys_write' */
-extern u32 (*Z_envZ_sys_writeZ_iiii)(u32, u32, u32);
+/* import: 'env' 'sys_write_pipe' */
+extern u32 (*Z_envZ_sys_write_pipeZ_iii)(u32, u32);
+/* import: 'env' 'sys_read_pipe' */
+extern u32 (*Z_envZ_sys_read_pipeZ_ii)(u32);
 /* import: 'env' 'sys_read' */
-extern u32 (*Z_envZ_sys_readZ_iiii)(u32, u32, u32);
+extern u32 (*Z_envZ_sys_readZ_iiji)(u32, u64, u32);
+/* import: 'env' 'sys_write' */
+extern u32 (*Z_envZ_sys_writeZ_iiji)(u32, u64, u32);
 /* import: 'env' 'sys_close' */
 extern u32 (*Z_envZ_sys_closeZ_ii)(u32);
-/* import: 'env' 'sys_stat' */
-extern u32 (*Z_envZ_sys_statZ_iii)(u32, u32);
-/* import: 'env' 'sys_mmap' */
-extern u32 (*Z_envZ_sys_mmapZ_iiiiiij)(u32, u32, u32, u32, u32, u64);
-/* import: 'env' 'sys_munmap' */
-extern u32 (*Z_envZ_sys_munmapZ_iii)(u32, u32);
+/* import: 'env' 'sys_filesize' */
+extern u32 (*Z_envZ_sys_filesizeZ_ii)(u32);
+/* import: 'env' 'sys_write_fd' */
+extern u32 (*Z_envZ_sys_write_fdZ_iiii)(u32, u32, u32);
 
 /* export: 'memory' */
 extern wasm_rt_memory_t (*WASM_RT_ADD_PREFIX(Z_memory));
