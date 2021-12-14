@@ -18,7 +18,6 @@ void start_main() {
 	worker_sd = pair_sd[0];
 	server_sd = pair_sd[1];
 
-	sys_printf("server id %d worker id %d\n", server_sd, worker_sd);
 
 	args->portno = "8888";
 	args->message_fd = server_sd;
@@ -43,7 +42,6 @@ void *server_main(void *args_in)
 {
 	struct msghdr parent_msg;
 	struct server_arguments *args = args_in;
-	sys_printf("%d %d\n", args->message_fd, args->portno);
 
 	struct sockaddr_in serveraddr; /* server's addr */
 	struct sockaddr_in clientaddr; /* client addr */
@@ -51,8 +49,6 @@ void *server_main(void *args_in)
 	int parentfd = sys_socket(AF_INET, SOCK_STREAM, 0);
 	int optval = 1;
 
-	sys_printf("test %d %d", 1, 2);
-	sys_printf("parentfd %d portno %d\n", parentfd, args->portno);
 
 	int portno = atoi(args->portno);
 
@@ -111,6 +107,7 @@ void *server_worker(void *message_fd_in)
 
 	int rc;
 
+
 	while (1)
 	{
 		buf = malloc(sizeof(char) * BUFSIZE);
@@ -153,7 +150,7 @@ void *server_worker(void *message_fd_in)
 			{
 				sys_write(childfd, "HTTP/1.1 404 Not Found", sizeof("HTTP/1.1 404 Not Found"));
 				sys_close(childfd);
-				sys_exit(-1);
+				continue;
 			}
 		}
 

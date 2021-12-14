@@ -37,8 +37,6 @@ extern u32 (*Z_envZ_sys_pipeZ_ii)(u32);
 extern void (*Z_envZ_sys_server_errorZ_vi)(u32);
 /* import: 'env' 'sys_exit' */
 extern void (*Z_envZ_sys_exitZ_vi)(u32);
-/* import: 'env' 'sys_printf' */
-extern u32 (*Z_envZ_sys_printfZ_iii)(u32, u32);
 /* import: 'env' 'sys_malloc' */
 extern u32 (*Z_envZ_sys_mallocZ_ii)(u32);
 /* import: 'env' 'sys_pthread_create' */

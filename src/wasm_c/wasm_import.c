@@ -135,9 +135,7 @@ int sys_printf(const char *__restrict__ __format, ...)
 {
 	va_list list;
 
-	va_start(list, wasm_addr_to_absolute(__format));
-	printf(wasm_addr_to_absolute(__format), list);
-	va_end(list);
+	printf("%s", wasm_addr_to_absolute(__format));
 
 	return 0;
 }
