@@ -53,44 +53,49 @@ void *server_main(void *args_in)
 void handle_resp(int childfd) {
     struct stat sbuf; /* file status */
     char *buf = malloc(1024);
-    char *method = malloc(BUFSIZE);
-    char *uri = malloc(BUFSIZE);
-    char *version = malloc(BUFSIZE);
-    char *filename = malloc(BUFSIZE);
+    char *method = malloc(1024);
+    char *uri = malloc(1024);
+    char *filename = malloc(1024);
+    char *n;
 
     /* get the HTTP request line */
-    read(childfd, buf, BUFSIZE);
-    sscanf(buf, "%s %s %s\n", method, uri, version);
-    if (strlen(uri) == 1 && uri[0] == '/') {
-        strcpy(filename, "./index.html");
-    } else {
-        filename[0] = '.';
-        strcpy(&filename[1], uri);
-    }
-
-    int fd;
-    if ((fd = open(filename, O_RDONLY)) < 0) {
-        write(childfd, "HTTP/1.1 404 Not Found", sizeof("HTTP/1.1 404 Not Found"));
-    } else {
-        if (fstat(fd, &sbuf) < 0) {
-            perror("stat()");
+    if (read(childfd, buf, 1024) > 0) {
+        buf[1023] = 0;
+        char *ptr = strtok_r(buf, " ", &n);
+        strcpy(method, ptr);
+        ptr = strtok_r(NULL, " ", &n);
+        strcpy(uri, ptr);
+        if (strlen(uri) == 1 && uri[0] == '/') {
+            strcpy(filename, "./index.html");
         } else {
-            write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n") - 1);
-            char *b = (char *) malloc(sbuf.st_size);
-            if (read(fd, b, sbuf.st_size) != sbuf.st_size) {
-                perror("read()");
-            } else {
-                write(childfd, b, sbuf.st_size);
-            }
-            free(b);
-            free(buf);
-            free(method);
-            free(uri);
-            free(version);
-            free(filename);
+            filename[0] = '.';
+            strcpy(&filename[1], uri);
         }
-        close(fd);
+
+        int fd;
+        if ((fd = open(filename, O_RDONLY)) < 0) {
+            write(childfd, "HTTP/1.0 404 Not Found\r\n\r\n", sizeof("HTTP/1.0 404 Not Found\r\n\r\n"));
+        } else {
+            if (fstat(fd, &sbuf) < 0) {
+                perror("stat()");
+            } else {
+                write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n"));
+                char *b = (char *) malloc(sbuf.st_size);
+                if (read(fd, b, sbuf.st_size) != sbuf.st_size) {
+                    perror("read()");
+                } else {
+                    write(childfd, b, sbuf.st_size);
+                }
+                free(b);
+           }
+            close(fd);
+        }
     }
+    free(buf);
+    free(method);
+    free(uri);
+    free(filename);
+
     close(childfd);
 }
 
@@ -108,7 +113,8 @@ void *server_worker(void *message_fd_in)
             printf("Descriptor was not received\n");
             close(message_fd);
             exit(-1);
+        } else {
+            handle_resp(childfd);
         }
-        handle_resp(childfd);
     }
 }
