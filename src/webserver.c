@@ -89,6 +89,7 @@ void handle_resp(int childfd) {
             free(version);
             free(filename);
         }
+        close(fd);
     }
     close(childfd);
 }
