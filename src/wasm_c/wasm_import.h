@@ -60,3 +60,4 @@ int sys_filesize(const char *__file);
 ssize_t sys_write_fd(int __fd, char *filename_in, size_t len);
 int sys_read_pipe(int __fd);
 int sys_read_pipe(int __fd);
+ssize_t sys_write_direct(int __fd, const uint64_t __buf, size_t __n);

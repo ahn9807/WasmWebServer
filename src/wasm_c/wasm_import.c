@@ -44,8 +44,7 @@ int sys_munmap(uintptr_t __addr, size_t __len)
 }
 uintptr_t sys_mmap(uintptr_t __addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset)
 {
-	uintptr_t ret = mmap(__addr, __len, __prot, __flags, __fd, __offset);
-	return ret;
+	return mmap(__addr, __len, __prot, __flags, __fd, __offset);
 }
 int sys_pipe(int *__pipedes)
 {
@@ -59,11 +58,16 @@ ssize_t sys_write(int __fd, const uintptr_t __buf, size_t __n)
 {
 	return write(__fd, wasm_addr_to_absolute(__buf), __n);
 }
+ssize_t sys_write_direct(int __fd, const uint64_t __buf, size_t __n)
+{
+	return write(__fd, (uintptr_t)__buf, __n);
+}
 ssize_t sys_write_fd(int __fd, char *filename_in, size_t len) {
 	char* filename = (char *)wasm_addr_to_absolute(filename_in);
 	int fd = open(filename, O_RDONLY);
 	void* buf = mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
 	int ret = write(__fd, buf, len);
+	close(fd);
 	munmap(buf, len);
 
 	return ret;
@@ -72,8 +76,7 @@ ssize_t sys_write_fd(int __fd, char *filename_in, size_t len) {
 ssize_t sys_read(int __fd, uintptr_t __buf, size_t __nbytes)
 {
 	int buf = 0;
-	int ret = read(__fd, wasm_addr_to_absolute(__buf), __nbytes);
-	return ret;
+	return read(__fd, wasm_addr_to_absolute(__buf), __nbytes);
 }
 
 int sys_read_pipe(int __fd) {
@@ -89,16 +92,11 @@ int sys_read_pipe(int __fd) {
 
 int sys_write_pipe(int __fd, int data) {
 	int buf = data;
-	int ret = write(__fd, &buf, sizeof(int));
-
-	return ret;
+	return write(__fd, &buf, sizeof(int));
 }
 
 int sys_close(int __fd)
 {
-	if (__fd == 3 || __fd ==4) {
-		printf("??????");
-	}
 	return close(__fd);
 }
 int sys_stat(const char *__restrict__ __file, struct stat *__restrict__ __buf)
@@ -112,7 +110,7 @@ int sys_filesize(const char *__file) {
 
 	ret = stat(wasm_addr_to_absolute(__file), &stat_buf);
 
-	if (ret < 00 || !stat_buf.st_size) {
+	if (ret < 0 || !stat_buf.st_size) {
 		return -1;
 	} else {
 		return stat_buf.st_size;
@@ -149,6 +147,6 @@ void undefined()
 
 void sys_server_error(char *msg)
 {
-	printf("panic!: %s", wasm_addr_to_absolute(msg));
+	printf("panic!: %s errno: %d\n", wasm_addr_to_absolute(msg), errno);
 	exit(-1);
 }

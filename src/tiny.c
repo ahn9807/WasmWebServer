@@ -44,6 +44,4 @@ int main(int argc, char **argv)
 	{
 		pthread_join(threads[i], NULL);
 	}
-
-// 	server_main((void *)args);
 }

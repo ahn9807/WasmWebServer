@@ -67,6 +67,7 @@ void (*Z_envZ_sys_server_errorZ_vi)(u32);
 u32 (*Z_envZ_sys_write_fdZ_iiii)(u32, u32, u32);
 u32 (*Z_envZ_sys_read_pipeZ_ii)(u32);
 u32 (*Z_envZ_sys_write_pipeZ_iii)(u32, u32);
+u32 (*Z_envZ_sys_write_directZ_iiji)(u32, u64, u32);
 
 int main(int argc, char **argv)
 {
@@ -86,6 +87,7 @@ int main(int argc, char **argv)
 	Z_envZ_sys_printfZ_iii = &sys_printf;
 	Z_envZ_sys_pthread_createZ_iiiii = &sys_pthread_create;
 	Z_envZ_sys_pthread_joinZ_iii = &sys_pthread_join;
+	Z_envZ_sys_write_directZ_iiji = &sys_write_direct;
 	Z_envZ_sys_openZ_iii = &sys_open;
 	Z_envZ_sys_readZ_iiji = &sys_read;
 	Z_envZ_sys_statZ_iii = &sys_stat;
@@ -143,7 +145,8 @@ int main(int argc, char **argv)
 		sys_pthread_create(&threads[i + 1], NULL, tiny_Z_server_workerZ_ii, wasm_worker);
 	}
 
-	while(1);
-
-	return 0;
+	for (int i = 0; i < WORKER_SIZE + 1; i++)
+	{
+		sys_pthread_join(threads[i], NULL);
+	}
 }

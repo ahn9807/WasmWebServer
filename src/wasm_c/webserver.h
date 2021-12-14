@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#define BUFSIZE 1024
+#define BUFSIZE 128
 
 struct server_arguments {
 	int message_fd;
@@ -50,3 +50,4 @@ extern int sys_filesize(const char *__file);
 extern ssize_t sys_write_fd(int __fd, char *filename_in, size_t len);
 extern int sys_write_pipe(int __fd, int data);
 extern int sys_read_pipe(int __fd);
+extern ssize_t sys_write_direct(int __fd, const int64_t __buf, size_t __n);

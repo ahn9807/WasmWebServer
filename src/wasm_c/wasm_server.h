@@ -59,14 +59,20 @@ extern u32 (*Z_envZ_sys_write_pipeZ_iii)(u32, u32);
 extern u32 (*Z_envZ_sys_read_pipeZ_ii)(u32);
 /* import: 'env' 'sys_read' */
 extern u32 (*Z_envZ_sys_readZ_iiji)(u32, u64, u32);
+/* import: 'env' 'sys_filesize' */
+extern u32 (*Z_envZ_sys_filesizeZ_ii)(u32);
 /* import: 'env' 'sys_write' */
 extern u32 (*Z_envZ_sys_writeZ_iiji)(u32, u64, u32);
 /* import: 'env' 'sys_close' */
 extern u32 (*Z_envZ_sys_closeZ_ii)(u32);
-/* import: 'env' 'sys_filesize' */
-extern u32 (*Z_envZ_sys_filesizeZ_ii)(u32);
-/* import: 'env' 'sys_write_fd' */
-extern u32 (*Z_envZ_sys_write_fdZ_iiii)(u32, u32, u32);
+/* import: 'env' 'sys_open' */
+extern u32 (*Z_envZ_sys_openZ_iii)(u32, u32);
+/* import: 'env' 'sys_mmap' */
+extern u64 (*Z_envZ_sys_mmapZ_jjiiiij)(u64, u32, u32, u32, u32, u64);
+/* import: 'env' 'sys_write_direct' */
+extern u32 (*Z_envZ_sys_write_directZ_iiji)(u32, u64, u32);
+/* import: 'env' 'sys_munmap' */
+extern u32 (*Z_envZ_sys_munmapZ_iji)(u64, u32);
 
 /* export: 'memory' */
 extern wasm_rt_memory_t (*WASM_RT_ADD_PREFIX(Z_memory));

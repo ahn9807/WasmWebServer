@@ -14,7 +14,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define BUFSIZE 1024
+#define BUFSIZE 128 
 
 struct server_arguments {
 	int message_fd;

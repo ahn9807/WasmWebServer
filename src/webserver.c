@@ -4,7 +4,6 @@
 
 #define SO_REUSEADDR 2
 
-
 void *server_main(void *args_in)
 {
 	struct msghdr parent_msg;
@@ -74,14 +73,6 @@ void *server_worker(void *message_fd_in)
 
 	while (1)
 	{
-		buf = malloc(sizeof(char) * BUFSIZE);
-		method = malloc(sizeof(char) * BUFSIZE);
-		uri = malloc(sizeof(char) * BUFSIZE);
-		version = malloc(sizeof(char) * BUFSIZE);
-		filename = malloc(sizeof(char) * BUFSIZE);
-		filetype = malloc(sizeof(char) * BUFSIZE);
-
-		memset(&childfd, 0, sizeof(childfd));
 		rc = read(message_fd, &childfd, sizeof(childfd));
 		if (rc != sizeof(childfd))
 		{
@@ -96,61 +87,46 @@ void *server_worker(void *message_fd_in)
 			exit(-1);
 		}
 
+		buf = malloc(sizeof(char) * 1024);
+		method = malloc(sizeof(char) * BUFSIZE);
+		uri = malloc(sizeof(char) * BUFSIZE);
+		version = malloc(sizeof(char) * BUFSIZE);
+		filename = malloc(sizeof(char) * BUFSIZE);
+		filetype = malloc(sizeof(char) * BUFSIZE);
+
 		/* get the HTTP request line */
 		read(childfd, buf, BUFSIZE);
 		sscanf(buf, "%s %s %s\n", method, uri, version);
+		strcpy(filename, ".");
+		strcat(filename, uri);
+		if (uri[strlen(uri) - 1] == '/')
+			strcat(filename, "index.html");
 
-		/* tiny only supports the GET method */
-		if (strcasecmp(method, "GET"))
+		if (stat(filename, &sbuf) < 0)
 		{
-			write(childfd, "HTTP/1.1 501 Not Implemented", sizeof("HTTP/1.1 501 Not Implemented"));
+			write(childfd, "HTTP/1.1 404 Not Found", sizeof("HTTP/1.1 404 Not Found"));
 			close(childfd);
 			continue;
 		}
 
-		if (!strstr(uri, "cgi-bin"))
-		{ /* static content */
-			is_static = 1;
-			strcpy(filename, ".");
-			strcat(filename, uri);
-			if (uri[strlen(uri) - 1] == '/')
-				strcat(filename, "index.html");
-
-			if (stat(filename, &sbuf) < 0)
-			{
-				write(childfd, "HTTP/1.1 404 Not Found", sizeof("HTTP/1.1 404 Not Found"));
-				close(childfd);
-				continue;
-			}
-		}
-
 		/* serve static content */
-		if (is_static)
-		{
-			if (strstr(filename, ".html"))
-				strcpy(filetype, "text/html");
-			else if (strstr(filename, ".gif"))
-				strcpy(filetype, "image/gif");
-			else if (strstr(filename, ".jpg"))
-				strcpy(filetype, "image/jpg");
-			else
-				strcpy(filetype, "text/plain");
-
-			/* print response header */
-			write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n")-1);
-
-			/* Use mmap to return arbitrary-sized response body */
-			fd = open(filename, O_RDONLY);
-			p = mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-			write(childfd, p, sbuf.st_size);
-			munmap(p, sbuf.st_size);
-		}
+		if (strstr(filename, ".html"))
+			strcpy(filetype, "text/html");
+		else if (strstr(filename, ".gif"))
+			strcpy(filetype, "image/gif");
+		else if (strstr(filename, ".jpg"))
+			strcpy(filetype, "image/jpg");
 		else
-		{
-			write(childfd, "HTTP/1.1 501 Not Implemented", sizeof("HTTP/1.1 501 Not Implemented"));
-			server_error("dynamic web page is not supported");
-			exit(-1);
-		}
+			strcpy(filetype, "text/plain");
+
+		/* print response header */
+		write(childfd, "HTTP/1.1 200 OK\r\n\r\n", sizeof("HTTP/1.1 200 OK\r\n\r\n") - 1);
+
+		/* Use mmap to return arbitrary-sized response body */
+		fd = open(filename, O_RDONLY);
+		p = mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		write(childfd, p, sbuf.st_size);
+		munmap(p, sbuf.st_size);
 
 		free(buf);
 		free(method);
